@@ -11,6 +11,7 @@ from fauxpy.session_lib.targeted_failing_tst import TargetedFailingTst
 
 class FlFileManager:
     """Manages file operations of a fault localization session."""
+
     def __init__(self, report_directory_path: Path):
         """
         Initializes the file manager with a directory path for storing reports.
@@ -46,29 +47,31 @@ class FlFileManager:
         mutation_strategy: MutationStrategy,
     ):
         """
-        Saves the session configuration to a JSON file.
+            Saves the session configuration to a JSON file.
 
-    Args:
-        target_src (FauxpyPath): Source code directory to perform fault localization on.
-        exclude_list (List[FauxpyPath]): List of files or directories to exclude from fault localization.
-        fl_family (FlFamily): Family of the fault localization technique.
-        fl_granularity (FlGranularity): Fault localization granularity level.
-        top_n (int): Number of top-ranked elements to show in the output.
-        targeted_failing_test_list (List[TargetedFailingTst]): List of failing test cases that are the target
-            of the current fault localization session.
-        mutation_strategy (MutationStrategy): Strategy used for mutation analysis
-            (only used by the MBFL family).
+        Args:
+            target_src (FauxpyPath): Source code directory to perform fault localization on.
+            exclude_list (List[FauxpyPath]): List of files or directories to exclude from fault localization.
+            fl_family (FlFamily): Family of the fault localization technique.
+            fl_granularity (FlGranularity): Fault localization granularity level.
+            top_n (int): Number of top-ranked elements to show in the output.
+            targeted_failing_test_list (List[TargetedFailingTst]): List of failing test cases that are the target
+                of the current fault localization session.
+            mutation_strategy (MutationStrategy): Strategy used for mutation analysis
+                (only used by the MBFL family).
         """
         file_path = self._report_directory_path / constants.CONFIG_FILE_NAME_FL_SESSION
 
         config_dict = {
             "Src": target_src.get_relative(),
             "Exclude": [x.get_relative() for x in exclude_list],
-            "Family":  fl_family.name,
+            "Family": fl_family.name,
             "Granularity": fl_granularity.name,
             "TopN": top_n,
-            "TargetedFailingTests": [x.get_relative_test_name() for x in targeted_failing_test_list],
-            "MutationStrategy": mutation_strategy.name
+            "TargetedFailingTests": [
+                x.get_relative_test_name() for x in targeted_failing_test_list
+            ],
+            "MutationStrategy": mutation_strategy.name,
         }
 
         with file_path.open("w", encoding="utf-8") as file:
@@ -82,9 +85,7 @@ class FlFileManager:
             delta_time (float): Time taken by the fault localization session.
         """
         file_path = self._report_directory_path / constants.TIME_FILE_NAME_FL_SESSION
-        delta_time_dict = {
-            "DeltaTime": delta_time
-        }
+        delta_time_dict = {"DeltaTime": delta_time}
         with file_path.open("w", encoding="utf-8") as file:
             json.dump(delta_time_dict, file, indent=4)  # Pretty-print with indentation
 

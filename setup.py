@@ -3,7 +3,6 @@ from pathlib import Path
 import setuptools
 from setuptools import setup
 
-
 # Load version
 root_path = Path(__file__).parent
 version_file_path = root_path / "fauxpy" / "version.py"
@@ -32,7 +31,7 @@ setup(
         "astor~=0.8.1",
         "pytest-timeout==2.1.0",
         "wheel",
-        "pyllmut"
+        "pyllmut",
     ],
     entry_points={
         "pytest11": [

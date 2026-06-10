@@ -34,7 +34,6 @@ class SbflSession(FlFamilySession):
         report_directory_path: Path,
         project_working_directory: Path,
     ):
-
         self._target_src = target_src
         self._exclude_list = exclude_list
         self._fl_granularity = fl_granularity

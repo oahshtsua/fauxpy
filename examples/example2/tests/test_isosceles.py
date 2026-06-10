@@ -11,6 +11,7 @@ def test_ia_fail():
     area = isosceles_area(leg, base)
     assert area == pytest.approx(2 * math.sqrt(77))
 
+
 def test_ia_pass():
     leg = 4
     base = 0

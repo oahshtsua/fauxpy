@@ -61,7 +61,6 @@ class CosmicRayMutantGenerator:
     def _get_all_mutant_list(
         self, module_path: str, operator_names: List[str]
     ) -> List[Mutant]:
-
         # This function is a modified version of the following function:
         # https://github.com/sixty-north/cosmic-ray/blob/release/v8.3.5/src/cosmic_ray/commands/init.py#L15
         # Module: cosmic_ray/commands/init.py

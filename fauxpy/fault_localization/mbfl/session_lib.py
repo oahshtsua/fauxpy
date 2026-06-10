@@ -3,28 +3,27 @@ from typing import List
 
 import coverage
 
-from fauxpy import program_tracer, constants
+from fauxpy import constants, program_tracer
 from fauxpy.command_line.pytest_mode import legacy_input
 from fauxpy.fault_localization.granularity.db_manager import FunctionLevelDbManager
 from fauxpy.fault_localization.mbfl.db_manager import MbflDbManager
 from fauxpy.fault_localization.mbfl.entity_score_manager import EntityScoreManager
+from fauxpy.fault_localization.mbfl.mbfl_run_manager import MbflRunManager
 from fauxpy.fault_localization.mbfl.mutant_score_manager import MutantScoreManager
 from fauxpy.fault_localization.mbfl.mutation_manager import MutationManager
-from fauxpy.fault_localization.mbfl.mbfl_run_manager import MbflRunManager
 from fauxpy.fault_localization.util import timeout
 from fauxpy.fault_localization.util.path_util import PathUtil
 from fauxpy.fault_localization.util.traceback_lib import TracebackParser
 from fauxpy.session_lib import naming_lib
-from fauxpy.session_lib.fl_family_session import FlFamilySession
-from fauxpy.session_lib.fl_type import FlGranularity, MutationStrategy, FlFamily
 from fauxpy.session_lib.fauxpy_path import FauxpyPath
+from fauxpy.session_lib.fl_family_session import FlFamilySession
+from fauxpy.session_lib.fl_type import FlFamily, FlGranularity, MutationStrategy
 from fauxpy.session_lib.pytest_tst_item import PytestTstItem
-from fauxpy.session_lib.timer import Timer
 from fauxpy.session_lib.targeted_failing_tst import TargetedFailingTst
+from fauxpy.session_lib.timer import Timer
 
 
 class MbflSession(FlFamilySession):
-
     # TODO: Program tracer does not work right now.
     _Use_coverage_lib = True
 
@@ -59,7 +58,9 @@ class MbflSession(FlFamilySession):
         )
         self._mutant_score_manager = MutantScoreManager(self._db_manager)
         self._entity_score_manager = EntityScoreManager(self._db_manager)
-        self._mutation_manager = MutationManager(self._db_manager, self._mutation_strategy)
+        self._mutation_manager = MutationManager(
+            self._db_manager, self._mutation_strategy
+        )
         self._traceback_parser = TracebackParser(project_working_directory)
         self._path_util = PathUtil(project_working_directory)
 

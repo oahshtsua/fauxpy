@@ -277,7 +277,9 @@ class MbflRunManager:
                     )
                 else:
                     # TODO: Safe to remove (handled by input validation.)
-                    raise Exception(f"Granularity {fl_granularity.name} is not supported.")
+                    raise Exception(
+                        f"Granularity {fl_granularity.name} is not supported."
+                    )
 
                 self._db_manager.insert_mutant_score_terms(
                     mutant.get_id(),

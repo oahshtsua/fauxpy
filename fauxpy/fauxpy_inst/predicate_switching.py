@@ -118,8 +118,7 @@ def wrap_pred_to_switch(predicate, predicateName):
     else:
         # This one should never happen.
         raise Exception(
-            f"Problem in the instrumentation library. "
-            f"Mode {_MODE} is not supported."
+            f"Problem in the instrumentation library. Mode {_MODE} is not supported."
         )
 
     return predReturn

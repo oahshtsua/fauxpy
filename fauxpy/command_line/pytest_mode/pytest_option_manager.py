@@ -26,58 +26,60 @@ class PytestOptionManager:
         """
         group = pytest_option_parser.getgroup(
             "fauxpy",
-            description="FauxPy " + __version__ + " - An automated fault localization tool for Python programs"
+            description="FauxPy "
+            + __version__
+            + " - An automated fault localization tool for Python programs",
         )
         group.addoption(
             "--src",
-            help="Specify the source directory for fault localization. If not provided, FauxPy will be disabled, and pytest will run normally."
+            help="Specify the source directory for fault localization. If not provided, FauxPy will be disabled, and pytest will run normally.",
         )
         group.addoption(
             "--exclude",
             default="[]",
-            help="Provide a list of paths to be excluded from analysis. Default is an empty list."
+            help="Provide a list of paths to be excluded from analysis. Default is an empty list.",
         )
         group.addoption(
             "--family",
             default="sbfl",
             help="Select the fault localization family to use. Options are: \n"
-                 "sbfl (Spectrum-Based Fault Localization), \n"
-                 "mbfl (Mutation-Based Fault Localization), \n"
-                 "ps (Predicate Switching), \n"
-                 "st (Stack-Trace). Default is sbfl."
+            "sbfl (Spectrum-Based Fault Localization), \n"
+            "mbfl (Mutation-Based Fault Localization), \n"
+            "ps (Predicate Switching), \n"
+            "st (Stack-Trace). Default is sbfl.",
         )
         group.addoption(
             "--mutation",
             default="t",
             help="Specify the mutation generation strategy for Mutation-Based Fault Localization (MBFL). Options: \n"
-                 "t - Use Cosmic Ray with traditional mutation operators (default), \n"
-                 "tgpt4ominiapi - Use Cosmic Ray, and when it cannot generate a mutant for a statement, fall back to GPT-4o-mini via its API, \n"
-                 "gpt4ominiapi - Use only GPT-4o-mini via its API for mutant generation, without Cosmic Ray, \n"
-                 "tgpt4oapi - Use Cosmic Ray, and when it cannot generate a mutant for a statement, fall back to GPT-4o via its API, \n"
-                 "gpt4oapi - Use only GPT-4o via its API for mutant generation, without Cosmic Ray."
+            "t - Use Cosmic Ray with traditional mutation operators (default), \n"
+            "tgpt4ominiapi - Use Cosmic Ray, and when it cannot generate a mutant for a statement, fall back to GPT-4o-mini via its API, \n"
+            "gpt4ominiapi - Use only GPT-4o-mini via its API for mutant generation, without Cosmic Ray, \n"
+            "tgpt4oapi - Use Cosmic Ray, and when it cannot generate a mutant for a statement, fall back to GPT-4o via its API, \n"
+            "gpt4oapi - Use only GPT-4o via its API for mutant generation, without Cosmic Ray.",
         )
         group.addoption(
             "--granularity",
             default="statement",
             help="Set the granularity level for fault localization. Options are: \n"
-                 "statement (or s) for statement-level analysis, \n"
-                 "function (or f) for function-level analysis. Default is statement."
+            "statement (or s) for statement-level analysis, \n"
+            "function (or f) for function-level analysis. Default is statement.",
         )
         group.addoption(
             "--top-n",
             default="-1",
             help="Specify the number of top suspicious code elements to report. "
-                 "Provide a positive integer to limit the results, or -1 to include all elements. Default is -1."
+            "Provide a positive integer to limit the results, or -1 to include all elements. Default is -1.",
         )
         group.addoption(
             "--failing-file",
             default=None,
-            help="Path to a file containing the list of targeted failing tests. Each line should represent a test identifier. Default is None."
+            help="Path to a file containing the list of targeted failing tests. Each line should represent a test identifier. Default is None.",
         )
         group.addoption(
             "--failing-list",
             default=None,
-            help="Provide a list of targeted failing tests. Default is None."
+            help="Provide a list of targeted failing tests. Default is None.",
         )
         group.addoption(
             "--fauxpy-verbose",

@@ -15,7 +15,7 @@ class FlPathManager:
         current_working_directory: FauxpyPath,
         fl_family: FlFamily,
         fl_granularity: FlGranularity,
-        mutation_strategy: MutationStrategy
+        mutation_strategy: MutationStrategy,
     ):
         """
         Initializes the class instance.

@@ -13,13 +13,12 @@ class FauxpyPath:
         self._project_working_directory: str = ""
         self._relative_path: str = ""
         self._absolute_path: str = ""
-        raise NotImplementedError("Use from_absolute_path or from_relative_path to instantiate this class.")
+        raise NotImplementedError(
+            "Use from_absolute_path or from_relative_path to instantiate this class."
+        )
 
     @staticmethod
-    def __create(
-            project_working_directory: str,
-            relative_path: str
-    ) -> "FauxpyPath":
+    def __create(project_working_directory: str, relative_path: str) -> "FauxpyPath":
         """Creates an instance of the object.
 
         Args:
@@ -48,8 +47,7 @@ class FauxpyPath:
 
     @staticmethod
     def from_absolute_path(
-            project_working_directory: str,
-            absolute_path: str
+        project_working_directory: str, absolute_path: str
     ) -> "FauxpyPath":
         """
         Creates an object instance from an absolute path.
@@ -66,8 +64,7 @@ class FauxpyPath:
 
     @staticmethod
     def from_relative_path(
-            project_working_directory: str,
-            relative_path: str
+        project_working_directory: str, relative_path: str
     ) -> "FauxpyPath":
         """
         Creates an object instance from a relative path.

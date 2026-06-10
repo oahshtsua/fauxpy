@@ -18,10 +18,7 @@ class TargetedFailingTst:
     """
 
     def __init__(
-            self,
-            module_path: FauxpyPath,
-            class_name: Optional[str],
-            function_name: str
+        self, module_path: FauxpyPath, class_name: Optional[str], function_name: str
     ):
         """Initializes a TargetedFailingTst.
 

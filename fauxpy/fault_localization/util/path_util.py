@@ -3,6 +3,7 @@ import pathlib
 from typing import List
 
 from fauxpy.session_lib.fauxpy_path import FauxpyPath
+
 # from fauxpy.utils.deprecated import deprecated
 
 
@@ -18,10 +19,7 @@ class PathUtil:
     the project's working directory.
     """
 
-    def __init__(
-            self,
-            project_working_directory: pathlib.Path
-    ):
+    def __init__(self, project_working_directory: pathlib.Path):
         """
         Initializes the PathUtil with the project's working directory.
 
@@ -49,10 +47,7 @@ class PathUtil:
         return True
 
     def path_should_be_localized(
-            self,
-            target_src: FauxpyPath,
-            exclude_list: List[FauxpyPath],
-            abs_path: str
+        self, target_src: FauxpyPath, exclude_list: List[FauxpyPath], abs_path: str
     ) -> bool:
         """
         Determines whether a given absolute path should be considered for fault localization.
@@ -68,7 +63,9 @@ class PathUtil:
             bool: True if the path should be localized, False otherwise.
         """
         abs_src = target_src.get_absolute()
-        if abs_path.startswith(abs_src) and self._not_starts_with(exclude_list, abs_path):
+        if abs_path.startswith(abs_src) and self._not_starts_with(
+            exclude_list, abs_path
+        ):
             return True
         else:
             return False

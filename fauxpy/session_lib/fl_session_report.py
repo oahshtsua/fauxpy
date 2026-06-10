@@ -6,6 +6,7 @@ from .fauxpy_path import FauxpyPath
 
 class FlSessionReport:
     """Generates a report for a fault localization session."""
+
     _rounding_decimal_places = 4
     _header_file = "File"
     _header_line = "Line"
@@ -14,11 +15,11 @@ class FlSessionReport:
     _header_range = "Line"
 
     def __init__(
-            self,
-            scored_entity_dict: Dict[str, List[Tuple[str, float]]],
-            execution_time: float,
-            granularity: FlGranularity,
-            project_working_directory: FauxpyPath
+        self,
+        scored_entity_dict: Dict[str, List[Tuple[str, float]]],
+        execution_time: float,
+        granularity: FlGranularity,
+        project_working_directory: FauxpyPath,
     ):
         """
         Initializes the object.
@@ -52,7 +53,9 @@ class FlSessionReport:
         border = "=" * len(title)
         self._write(f"\n{border}\n{title}\n{border}\n")
         self._write(f"=== Performance ===")
-        self._write(f"Execution Time: {self._execution_time:.{self._rounding_decimal_places}f}\n")
+        self._write(
+            f"Execution Time: {self._execution_time:.{self._rounding_decimal_places}f}\n"
+        )
 
         if self._granularity == FlGranularity.Statement:
             for technique_name, scored_entity_list in self._scored_entity_dict.items():
@@ -67,8 +70,7 @@ class FlSessionReport:
         return self._get_report_string()
 
     def _get_rounded_score(
-            self,
-            scored_entity_dict: Dict[str, List[Tuple[str, float]]]
+        self, scored_entity_dict: Dict[str, List[Tuple[str, float]]]
     ) -> Dict[str, List[Tuple[str, float]]]:
         """
         Rounds the scores to the defined number of decimal places.
@@ -80,16 +82,17 @@ class FlSessionReport:
             Dict[str, List[Tuple[str, float]]]: Dictionary with scores rounded to the specified decimal places.
         """
         rounded_scored_entity_dict = {
-            key: [(entity, round(score, self._rounding_decimal_places)) for entity, score in value]
+            key: [
+                (entity, round(score, self._rounding_decimal_places))
+                for entity, score in value
+            ]
             for key, value in scored_entity_dict.items()
         }
 
         return rounded_scored_entity_dict
 
     def _print_scores_statement_level(
-            self,
-            technique_name: str,
-            scored_entity_list: List[Tuple[str, float]]
+        self, technique_name: str, scored_entity_list: List[Tuple[str, float]]
     ):
         """
         Prints the statement-level scores for a given technique.
@@ -104,16 +107,16 @@ class FlSessionReport:
         border = "-" * (len(title) + 6)
         self._write(f"{border}\n|  {title}  |\n{border}")
 
-        (
-            file_pad,
-            line_pad,
-            score_pad
-        ) = self._get_max_column_widths_statement_level(scored_entity_list)
+        file_pad, line_pad, score_pad = self._get_max_column_widths_statement_level(
+            scored_entity_list
+        )
 
-        self._write(f"{self._header_file.ljust(file_pad)} | "
-              f"{self._header_line.ljust(line_pad)} | "
-              f"{self._header_score.ljust(score_pad)}")
-        self._write('-' * (file_pad + line_pad + score_pad + 6))
+        self._write(
+            f"{self._header_file.ljust(file_pad)} | "
+            f"{self._header_line.ljust(line_pad)} | "
+            f"{self._header_score.ljust(score_pad)}"
+        )
+        self._write("-" * (file_pad + line_pad + score_pad + 6))
 
         for entity, score in scored_entity_list:
             # To handle PS results
@@ -123,18 +126,21 @@ class FlSessionReport:
             else:
                 file_path, line_number = entity.split("::")
             file_path_relative = self._get_relative_path(file_path)
-            score_format = (f"{score:+.{self._rounding_decimal_places}f}" if has_negative_score
-                            else f"{score:.{self._rounding_decimal_places}f}")
-            self._write(f"{file_path_relative.ljust(file_pad)} | "
-                  f"{line_number.rjust(line_pad)} | "
-                  f"{score_format.rjust(score_pad)}")
+            score_format = (
+                f"{score:+.{self._rounding_decimal_places}f}"
+                if has_negative_score
+                else f"{score:.{self._rounding_decimal_places}f}"
+            )
+            self._write(
+                f"{file_path_relative.ljust(file_pad)} | "
+                f"{line_number.rjust(line_pad)} | "
+                f"{score_format.rjust(score_pad)}"
+            )
 
-        self._write('-' * (file_pad + line_pad + score_pad + 6) + "\n")
+        self._write("-" * (file_pad + line_pad + score_pad + 6) + "\n")
 
     def _print_scores_function_level(
-            self,
-            technique_name: str,
-            scored_entity_list: List[Tuple[str, float]]
+        self, technique_name: str, scored_entity_list: List[Tuple[str, float]]
     ):
         """
         Prints the function-level scores for a given technique.
@@ -149,35 +155,38 @@ class FlSessionReport:
         border = "-" * (len(title) + 6)
         self._write(f"{border}\n|  {title}  |\n{border}")
 
-        (
-            file_pad,
-            func_pad,
-            range_pad,
-            score_pad
-        ) = self._get_max_column_widths_function_level(scored_entity_list)
+        file_pad, func_pad, range_pad, score_pad = (
+            self._get_max_column_widths_function_level(scored_entity_list)
+        )
 
-        self._write(f"{self._header_file.ljust(file_pad)} | "
-              f"{self._header_function.ljust(func_pad)} | "
-              f"{self._header_range.ljust(range_pad)} | "
-              f"{self._header_score.ljust(score_pad)}")
-        self._write('-' * (file_pad + func_pad + range_pad + score_pad + 9))
+        self._write(
+            f"{self._header_file.ljust(file_pad)} | "
+            f"{self._header_function.ljust(func_pad)} | "
+            f"{self._header_range.ljust(range_pad)} | "
+            f"{self._header_score.ljust(score_pad)}"
+        )
+        self._write("-" * (file_pad + func_pad + range_pad + score_pad + 9))
 
         for entity, score in scored_entity_list:
             file_path, func_name, start_line, end_line = entity.split("::")
             file_path_relative = self._get_relative_path(file_path)
             func_range = f"{start_line}-{end_line}"
-            score_format = (f"{score:+.{self._rounding_decimal_places}f}" if has_negative_score
-                            else f"{score:.{self._rounding_decimal_places}f}")
-            self._write(f"{file_path_relative.ljust(file_pad)} | "
-                  f"{func_name.ljust(func_pad)} | "
-                  f"{func_range.center(range_pad)} | "
-                  f"{score_format.rjust(score_pad)}")
+            score_format = (
+                f"{score:+.{self._rounding_decimal_places}f}"
+                if has_negative_score
+                else f"{score:.{self._rounding_decimal_places}f}"
+            )
+            self._write(
+                f"{file_path_relative.ljust(file_pad)} | "
+                f"{func_name.ljust(func_pad)} | "
+                f"{func_range.center(range_pad)} | "
+                f"{score_format.rjust(score_pad)}"
+            )
 
-        self._write('-' * (file_pad + func_pad + range_pad + score_pad + 9) + "\n")
+        self._write("-" * (file_pad + func_pad + range_pad + score_pad + 9) + "\n")
 
     def _get_max_column_widths_statement_level(
-            self,
-            scored_entity_list: List[Tuple[str, float]]
+        self, scored_entity_list: List[Tuple[str, float]]
     ) -> Tuple[int, int, int]:
         """
         Calculates the maximum column widths for statement-level entities.
@@ -195,16 +204,25 @@ class FlSessionReport:
         else:
             is_ps = len(scored_entity_list[0][0].split("::")) == 3
 
-            max_file_width = max(len(self._get_relative_path(score[0].split("::")[0]))
-                                 for score in scored_entity_list)
+            max_file_width = max(
+                len(self._get_relative_path(score[0].split("::")[0]))
+                for score in scored_entity_list
+            )
             if is_ps:
-                max_line_width = max(len(score[0].split("::")[1]) + len(score[0].split("::")[2]) + len("-")
-                                     for score in scored_entity_list)
+                max_line_width = max(
+                    len(score[0].split("::")[1])
+                    + len(score[0].split("::")[2])
+                    + len("-")
+                    for score in scored_entity_list
+                )
             else:
-                max_line_width = max(len(score[0].split("::")[1])
-                                     for score in scored_entity_list)
-            max_score_width = max(len(f"{score[1]:.{self._rounding_decimal_places}f}")
-                                  for score in scored_entity_list)
+                max_line_width = max(
+                    len(score[0].split("::")[1]) for score in scored_entity_list
+                )
+            max_score_width = max(
+                len(f"{score[1]:.{self._rounding_decimal_places}f}")
+                for score in scored_entity_list
+            )
 
         max_file_width = max(len(self._header_file), max_file_width)
         max_line_width = max(len(self._header_line), max_line_width)
@@ -213,8 +231,7 @@ class FlSessionReport:
         return max_file_width, max_line_width, max_score_width
 
     def _get_max_column_widths_function_level(
-            self,
-            scored_entity_list: List[Tuple[str, float]]
+        self, scored_entity_list: List[Tuple[str, float]]
     ) -> Tuple[int, int, int, int]:
         """
         Calculates the maximum column widths for function-level entities.
@@ -231,14 +248,21 @@ class FlSessionReport:
             max_range_width = 0
             max_score_width = 0
         else:
-            max_file_width = max(len(self._get_relative_path(score[0].split("::")[0]))
-                                 for score in scored_entity_list)
-            max_func_width = max(len(score[0].split("::")[1])
-                                 for score in scored_entity_list)
-            max_range_width = max(len(f"{score[0].split('::')[2]}-{score[0].split('::')[3]}")
-                                  for score in scored_entity_list)
-            max_score_width = max(len(f"{score[1]:.{self._rounding_decimal_places}f}")
-                                  for score in scored_entity_list)
+            max_file_width = max(
+                len(self._get_relative_path(score[0].split("::")[0]))
+                for score in scored_entity_list
+            )
+            max_func_width = max(
+                len(score[0].split("::")[1]) for score in scored_entity_list
+            )
+            max_range_width = max(
+                len(f"{score[0].split('::')[2]}-{score[0].split('::')[3]}")
+                for score in scored_entity_list
+            )
+            max_score_width = max(
+                len(f"{score[1]:.{self._rounding_decimal_places}f}")
+                for score in scored_entity_list
+            )
 
         max_file_width = max(len(self._header_file), max_file_width)
         max_func_width = max(len(self._header_function), max_func_width)
@@ -248,6 +272,8 @@ class FlSessionReport:
         return max_file_width, max_func_width, max_range_width, max_score_width
 
     def _get_relative_path(self, file_path: str) -> str:
-        fauxpy_path_file = FauxpyPath.from_absolute_path(self._project_working_directory.get_absolute(), file_path)
+        fauxpy_path_file = FauxpyPath.from_absolute_path(
+            self._project_working_directory.get_absolute(), file_path
+        )
         path_str_relative = fauxpy_path_file.get_relative()
         return path_str_relative

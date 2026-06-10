@@ -67,7 +67,7 @@ class FauxpyPytestModeHandler:
                     fl_granularity=fl_option_manager.get_fl_granularity(),
                     top_n=fl_option_manager.get_top_n(),
                     targeted_failing_test_list=fl_option_manager.get_targeted_failing_test_list(),
-                    mutation_strategy=fl_option_manager.get_mutation_strategy()
+                    mutation_strategy=fl_option_manager.get_mutation_strategy(),
                 )
 
     def runtest_call(self, item):
@@ -110,17 +110,21 @@ class FauxpyPytestModeHandler:
 
             fl_print.normal(f"Running {self._session_object}")
 
-            if (isinstance(self._session_object, FlFamilySession) and
-                    len(self._session_object.get_targeted_failing_test_list()) > 0):
+            if (
+                isinstance(self._session_object, FlFamilySession)
+                and len(self._session_object.get_targeted_failing_test_list()) > 0
+            ):
                 fl_print.normal("Targeted failing tests:")
-                for index, item in enumerate(self._session_object.get_targeted_failing_test_list()):
+                for index, item in enumerate(
+                    self._session_object.get_targeted_failing_test_list()
+                ):
                     fl_print.normal(f"  {index + 1}. {item}")
 
             print("\n")
             banner_dynamic_analysis = (
-                               "==============================\n"
-                               " Dynamic Analysis in Progress \n"
-                               "==============================\n"
+                "==============================\n"
+                " Dynamic Analysis in Progress \n"
+                "==============================\n"
             )
             print(banner_dynamic_analysis)
 
@@ -142,7 +146,7 @@ class FauxpyPytestModeHandler:
                     score_entity_list,
                     session_time,
                     self._session_object.get_fl_granularity(),
-                    self._session_object.get_project_working_directory()
+                    self._session_object.get_project_working_directory(),
                 )
                 report_string = fl_session_report.generate_report()
                 print(report_string)

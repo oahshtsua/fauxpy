@@ -207,10 +207,9 @@ class MbflDbManager:
             mutant_score_term_table_entity_index_command,
             entity_score_table_entity_index_command,
             view_create_command,
-
             pyllmut_mutant_info_table_create_command,
             pyllmut_response_info_table_create_command,
-            pyllmut_timeout_info_table_create_command
+            pyllmut_timeout_info_table_create_command,
         ]
 
         return command_list
@@ -321,8 +320,7 @@ class MbflDbManager:
         return entities
 
     def select_failing_line_numbers_for_module_path(
-            self,
-            module_path: str
+        self, module_path: str
     ) -> List[int]:
         """
         Selects the line numbers covered by failing tests, in the given module.
@@ -478,10 +476,7 @@ class MbflDbManager:
         return rows
 
     def update_mutant_score_terms(
-            self,
-            mutant_id,
-            mutant_muse_score,
-            mutant_metallaxis_score
+        self, mutant_id, mutant_muse_score, mutant_metallaxis_score
     ):
         """
         Selects all the mutant score terms.
@@ -541,10 +536,7 @@ class MbflDbManager:
         return {"Muse": mutant_muse_scores, "Metallaxis": mutant_metallaxis_scores}
 
     def insert_entity_score(
-            self,
-            entity: str,
-            entity_muse_score: float,
-            entity_metallaxis_score: float
+        self, entity: str, entity_muse_score: float, entity_metallaxis_score: float
     ):
         """
         Inserts a score for an entity into the entity score table.
@@ -654,7 +646,7 @@ class MbflDbManager:
         """
         cur = self._connection.cursor()
         cur.execute(
-            f"UPDATE {self._Mutant_info_table} SET Timeout = ? " f"WHERE MutantId = ?",
+            f"UPDATE {self._Mutant_info_table} SET Timeout = ? WHERE MutantId = ?",
             (1, mutant_id),
         )
 
@@ -688,7 +680,7 @@ class MbflDbManager:
         after_code_model: str,
         pre_code_refined: str,
         after_code_refined: str,
-        mutant_type: str
+        mutant_type: str,
     ):
         """
         Inserts a new PyLLMut mutant info object.
@@ -717,9 +709,17 @@ class MbflDbManager:
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                prompt_content, line_number, sent_token_count, response_content,
-                received_token_count, diff_content, pre_code_model, after_code_model,
-                pre_code_refined, after_code_refined, mutant_type
+                prompt_content,
+                line_number,
+                sent_token_count,
+                response_content,
+                received_token_count,
+                diff_content,
+                pre_code_model,
+                after_code_model,
+                pre_code_refined,
+                after_code_refined,
+                mutant_type,
             ),
         )
 
@@ -731,7 +731,7 @@ class MbflDbManager:
         line_number: int,
         sent_token_count: int,
         response_content: str,
-        received_token_count: int
+        received_token_count: int,
     ):
         """
         Inserts a new PyLLMut response info object representing an unparsable response (e.g., bad JSON) from the model.
@@ -753,17 +753,20 @@ class MbflDbManager:
             ) VALUES (?, ?, ?, ?, ?)
             """,
             (
-                prompt_content, line_number, sent_token_count, response_content,
-                received_token_count
+                prompt_content,
+                line_number,
+                sent_token_count,
+                response_content,
+                received_token_count,
             ),
         )
 
         self._connection.commit()
 
     def insert_pyllmut_timeout_info(
-            self,
-            prompt_content: str,
-            line_number: int,
+        self,
+        prompt_content: str,
+        line_number: int,
     ):
         """
         Inserts a new PyLLMut prompt info object representing a session timeout for a line number.
@@ -780,9 +783,7 @@ class MbflDbManager:
                 PromptContent, LineNumber
             ) VALUES (?, ?)
             """,
-            (
-                prompt_content, line_number
-            ),
+            (prompt_content, line_number),
         )
 
         self._connection.commit()

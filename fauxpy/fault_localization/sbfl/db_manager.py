@@ -174,8 +174,7 @@ class SbflDbManager:
     def inert_scores(self, entity, ef, ep, nf, np, scores):
         cur = self._connection.cursor()
         cur.execute(
-            f"INSERT INTO {self._Score_table} "
-            f"VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?)",
+            f"INSERT INTO {self._Score_table} VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 entity,
                 ef,

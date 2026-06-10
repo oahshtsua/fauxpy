@@ -36,7 +36,9 @@ class TracebackParser:
             if not self._is_python_module(path):
                 continue
 
-            if self._path_util.path_should_be_localized(target_src, exclude_list, absolute_path):
+            if self._path_util.path_should_be_localized(
+                target_src, exclude_list, absolute_path
+            ):
                 covered_function = (
                     self._function_level_granularity_manager.get_covered_function(
                         absolute_path, line_number

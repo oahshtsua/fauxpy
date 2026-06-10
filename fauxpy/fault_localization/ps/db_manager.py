@@ -332,7 +332,7 @@ class PsDbManager:
     def select_test_type(self, testName: str) -> str:
         cur = self._connection.cursor()
         cur.execute(
-            f"SELECT Type FROM {self._Test_case_table} " f"WHERE TestName = ?",
+            f"SELECT Type FROM {self._Test_case_table} WHERE TestName = ?",
             (testName,),
         )
 

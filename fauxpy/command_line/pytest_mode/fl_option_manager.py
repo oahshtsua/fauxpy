@@ -10,12 +10,12 @@ from fauxpy.fault_localization.mbfl.session_lib import MbflSession
 from fauxpy.fault_localization.ps.session_lib import PsSession
 from fauxpy.fault_localization.sbfl.session_lib import SbflSession
 from fauxpy.fault_localization.st.session_lib import StSession
+from fauxpy.session_lib.fauxpy_path import FauxpyPath
 from fauxpy.session_lib.fauxpy_printer import fl_print
 from fauxpy.session_lib.fl_file_manager import FlFileManager
 from fauxpy.session_lib.fl_path_manager import FlPathManager
 from fauxpy.session_lib.fl_session import FlSession
 from fauxpy.session_lib.fl_type import FlFamily, FlGranularity, MutationStrategy
-from fauxpy.session_lib.fauxpy_path import FauxpyPath
 from fauxpy.session_lib.targeted_failing_tst import TargetedFailingTst
 
 
@@ -58,11 +58,15 @@ class FlOptionManager:
             fauxpy_verbose_opt (bool): Enables detailed output during execution when set to True.
             file_or_dir: Additional file or directory option.
         """
-        self._project_working_directory = FauxpyPath.from_relative_path(project_working_directory, ".")
+        self._project_working_directory = FauxpyPath.from_relative_path(
+            project_working_directory, "."
+        )
         self._target_src = self._get_validate_target_src(target_src_opt)
         self._exclude_list = self._get_validate_exclude_list(exclude_list_opt)
         self._fl_family = self._get_validate_fl_family(fl_family_opt)
-        self._mutation_strategy = self._get_validate_mutation_strategy(mutation_strategy_opt)
+        self._mutation_strategy = self._get_validate_mutation_strategy(
+            mutation_strategy_opt
+        )
         self._fl_granularity = self._get_validate_fl_granularity(fl_granularity_opt)
         self._top_n = self._get_validate_top_n(top_n_opt)
         self._targeted_failing_test_list = (
@@ -75,7 +79,7 @@ class FlOptionManager:
             self._project_working_directory,
             self._fl_family,
             self._fl_granularity,
-            self._mutation_strategy
+            self._mutation_strategy,
         )
         self._fl_file_manager = None
 
@@ -213,15 +217,18 @@ class FlOptionManager:
             )
         elif self._fl_family == FlFamily.CollectMbfl:
             fauxpy_session = CollectMbflSession(
-                report_directory_path, Path(self._project_working_directory.get_absolute())
+                report_directory_path,
+                Path(self._project_working_directory.get_absolute()),
             )
         elif self._fl_family == FlFamily.CollectPsInfo:
             fauxpy_session = CollectPsInfoSession(
-                report_directory_path, Path(self._project_working_directory.get_absolute())
+                report_directory_path,
+                Path(self._project_working_directory.get_absolute()),
             )
         elif self._fl_family == FlFamily.CollectPsRun:
             fauxpy_session = CollectPsRunSession(
-                report_directory_path, Path(self._project_working_directory.get_absolute())
+                report_directory_path,
+                Path(self._project_working_directory.get_absolute()),
             )
 
         assert fauxpy_session is not None
@@ -350,7 +357,13 @@ class FlOptionManager:
             f"Valid options: t, tgpt4ominiapi, gpt4ominiapi, tgpt4oapi, gpt4oapi."
         )
 
-        if mutation_strategy_opt not in ["t", "tgpt4ominiapi", "gpt4ominiapi", "tgpt4oapi", "gpt4oapi"]:
+        if mutation_strategy_opt not in [
+            "t",
+            "tgpt4ominiapi",
+            "gpt4ominiapi",
+            "tgpt4oapi",
+            "gpt4oapi",
+        ]:
             raise pytest.UsageError(error_message)
 
         mutation_strategy = MutationStrategy.Traditional
@@ -489,9 +502,7 @@ class FlOptionManager:
         """
         if failing_file_opt is not None and failing_list_opt is not None:
             error_message = (
-                "You may specify either "
-                "--failing-list or --failing-file,"
-                " but not both."
+                "You may specify either --failing-list or --failing-file, but not both."
             )
             raise pytest.UsageError(error_message)
 
@@ -501,7 +512,9 @@ class FlOptionManager:
                 failing_list_opt
             )
         elif failing_file_opt is not None:
-            failing_file_path = Path(self._project_working_directory.get_absolute()) / failing_file_opt
+            failing_file_path = (
+                Path(self._project_working_directory.get_absolute()) / failing_file_opt
+            )
             if not failing_file_path.exists():
                 error_message = (
                     f"{failing_file_opt} is not a valid option. "

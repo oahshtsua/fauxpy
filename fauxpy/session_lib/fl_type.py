@@ -13,6 +13,7 @@ class FlFamily(Enum):
         CollectPsInfo: Collecting predicate switching information (e.g., conditionals).
         CollectPsRun: Collecting data by executing predicate switches during test runs.
     """
+
     Sbfl = 1
     Mbfl = 2
     Ps = 3
@@ -29,6 +30,7 @@ class FlGranularity(Enum):
         Statement: Fault localization at the statement level.
         Function: Fault localization at the function level.
     """
+
     Statement = 1
     Function = 2
 
@@ -43,6 +45,7 @@ class MutationStrategy(Enum):
         TraditionalWithGPT4o: Combine traditional operators with GPT-4o-generated mutants.
         GPT4o: Use only GPT-4o to generate mutants.
     """
+
     Traditional = 1
     TraditionalWithGPT4oMini = 2
     GPT4oMini = 3

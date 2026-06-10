@@ -1,5 +1,6 @@
 import time
 
+
 class Timer(object):
     """A simple timer class to measure elapsed time."""
 

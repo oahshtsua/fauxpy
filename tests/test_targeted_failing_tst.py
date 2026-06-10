@@ -17,7 +17,7 @@ def test_relative_name_with_class(mock_fauxpy_path):
     test_case = TargetedFailingTst(
         module_path=mock_fauxpy_path,
         class_name="TestExample",
-        function_name="test_function"
+        function_name="test_function",
     )
     expected = "tests/test_example.py::TestExample::test_function"
     assert test_case.get_relative_test_name() == expected
@@ -27,9 +27,7 @@ def test_relative_name_with_class(mock_fauxpy_path):
 def test_relative_name_without_class(mock_fauxpy_path):
     """Should omit class name when it is None."""
     test_case = TargetedFailingTst(
-        module_path=mock_fauxpy_path,
-        class_name=None,
-        function_name="test_function"
+        module_path=mock_fauxpy_path, class_name=None, function_name="test_function"
     )
     expected = "tests/test_example.py::test_function"
     assert test_case.get_relative_test_name() == expected

@@ -20,7 +20,6 @@ from fauxpy.session_lib.targeted_failing_tst import TargetedFailingTst
 
 
 class PsSession(FlFamilySession):
-
     # TODO: Program tracer does not work right now.
     _Use_coverage_lib = True
 

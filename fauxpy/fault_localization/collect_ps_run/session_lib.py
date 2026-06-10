@@ -41,9 +41,7 @@ class CollectPsRunSession(FlSession):
                     f"Starting with {self._current_test_name}, but ending with {test_name}."
                 )
 
-            seen_exceptions_sequence = (
-                self._session_file_manager.load_seen_exception_sequence_and_remove_file()
-            )
+            seen_exceptions_sequence = self._session_file_manager.load_seen_exception_sequence_and_remove_file()
             if seen_exceptions_sequence is not None:
                 self._db_manager.insert_seen_exception_sequence(
                     test_name, seen_exceptions_sequence

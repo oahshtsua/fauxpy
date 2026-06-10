@@ -8,5 +8,6 @@ class FauxpySessionType(Enum):
         FaultLocalization: A session where FauxPy is actively used for fault localization.
         FauxpyNotCalled: A session where FauxPy was not invoked during the test run.
     """
+
     FaultLocalization = 1
     FauxpyNotCalled = 2

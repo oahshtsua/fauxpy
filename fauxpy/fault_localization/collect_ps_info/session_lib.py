@@ -41,9 +41,7 @@ class CollectPsInfoSession(FlSession):
                     f"Starting with {self._current_test_name}, but ending with {test_name}."
                 )
 
-            predicate_sequence = (
-                self._session_file_manager.load_executed_predicate_sequence_and_remove_file()
-            )
+            predicate_sequence = self._session_file_manager.load_executed_predicate_sequence_and_remove_file()
             if predicate_sequence is not None:
                 self._db_manager.insert_predicate_sequence(
                     test_name, predicate_sequence

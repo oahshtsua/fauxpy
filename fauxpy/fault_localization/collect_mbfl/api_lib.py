@@ -70,7 +70,12 @@ class CollectMbflApi:
         process_timeout: float,
     ) -> Optional[List[Tuple[str, str, str]]]:
         self._run_project(
-            target_src, exclude_list, project_path, file_or_dir, timeout, process_timeout
+            target_src,
+            exclude_list,
+            project_path,
+            file_or_dir,
+            timeout,
+            process_timeout,
         )
         test_case_table = self._api_file_manager.load_test_case_table(project_path)
         return test_case_table

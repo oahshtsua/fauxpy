@@ -114,11 +114,11 @@ class PsRunManager:
         return tmp_project_path
 
     def _get_predicate_sequences(
-            self,
-            project_path: str,
-            target_src: FauxpyPath,
-            exclude_list: List[FauxpyPath],
-            failed_test_paths
+        self,
+        project_path: str,
+        target_src: FauxpyPath,
+        exclude_list: List[FauxpyPath],
+        failed_test_paths,
     ):
         """
         Runs the project in Collect mode and stores a list of tuples
@@ -332,7 +332,9 @@ class PsRunManager:
                     )
             else:
                 # TODO: Safe to remove (handled by input validation).
-                raise Exception(f"The granularity {fl_granularity.name} is not supported.")
+                raise Exception(
+                    f"The granularity {fl_granularity.name} is not supported."
+                )
 
             # For function granularity it can happen.
             # In this case, only one should be stored.
@@ -405,10 +407,7 @@ class PsRunManager:
             failing_tests = target_failing_tests.get_failing_tests()
 
         predicate_sequences = self._get_predicate_sequences(
-            temp_project_path,
-            target_src,
-            exclude_list,
-            failing_tests
+            temp_project_path, target_src, exclude_list, failing_tests
         )
 
         for pred_seq_item in predicate_sequences:

@@ -3,21 +3,22 @@ from pathlib import Path
 from typing import List
 
 from pyllmut import (
+    ModelType,
     MutantGenerator,
     MutantInfo,
+    MutationReport,
     PromptInfo,
     ResponseInfo,
-    MutationReport,
-    ModelType
 )
 
+from fauxpy import constants
 from fauxpy.session_lib import naming_lib
 from fauxpy.session_lib.fl_type import MutationStrategy
+
+from ...session_lib.fauxpy_printer import fl_print
 from .db_manager import MbflDbManager
 from .mutation_lib.cosmic_ray import CosmicRayMutantGenerator
 from .mutation_lib.mutant import Mutant
-from fauxpy import constants
-from ...session_lib.fauxpy_printer import fl_print
 
 
 class MutationManager:
@@ -26,11 +27,7 @@ class MutationManager:
     utilizing various mutation strategies.
     """
 
-    def __init__(
-            self,
-            db_manager: MbflDbManager,
-            mutation_strategy: MutationStrategy
-    ):
+    def __init__(self, db_manager: MbflDbManager, mutation_strategy: MutationStrategy):
         """
         Initializes the MutationManager with specified database manager and mutation strategy.
 
@@ -56,15 +53,15 @@ class MutationManager:
         self, failing_line_number_list
     ) -> List:
         """
-         Generates mutants for the given statements. Each statement contains
-          information about the module and the line number the statement belongs to.
+        Generates mutants for the given statements. Each statement contains
+         information about the module and the line number the statement belongs to.
 
-         Args:
-             failing_line_number_list (List[str]): A list of statements to generate mutants for.
+        Args:
+            failing_line_number_list (List[str]): A list of statements to generate mutants for.
 
-         Returns:
-             List[Mutant]: A list of mutants corresponding to the given statements.
-         """
+        Returns:
+            List[Mutant]: A list of mutants corresponding to the given statements.
+        """
         mutant_list = []
 
         for statement_name in failing_line_number_list:
@@ -77,11 +74,15 @@ class MutationManager:
             self._db_manager.select_distinct_failing_module_paths()
         )
         for module_path in failing_module_path_list:
-            line_number_list = self._db_manager.select_failing_line_numbers_for_module_path(
-                module_path
+            line_number_list = (
+                self._db_manager.select_failing_line_numbers_for_module_path(
+                    module_path
+                )
             )
 
-            current_module_mutant_list = self._get_module_mutant_list(module_path, line_number_list)
+            current_module_mutant_list = self._get_module_mutant_list(
+                module_path, line_number_list
+            )
 
             mutant_list += current_module_mutant_list
 
@@ -102,17 +103,33 @@ class MutationManager:
             List[Mutant]: A list of generated mutants for the module.
         """
 
-        fl_print.normal(f"Generating mutants using the mutation strategy {self._mutation_strategy.name} for the following module:")
+        fl_print.normal(
+            f"Generating mutants using the mutation strategy {self._mutation_strategy.name} for the following module:"
+        )
         fl_print.normal(f"  {module_path}")
 
         if self._mutation_strategy == MutationStrategy.Traditional:
-            module_mutant_list = self._get_traditional_module_mutant_list(module_path, line_number_list)
-        elif self._mutation_strategy in [MutationStrategy.GPT4oMini, MutationStrategy.GPT4o]:
-            module_mutant_list = self._get_pyllmut_module_mutant_list(module_path, line_number_list)
-        elif self._mutation_strategy in [MutationStrategy.TraditionalWithGPT4oMini, MutationStrategy.TraditionalWithGPT4o]:
-            module_mutant_list = self._get_traditional_with_pyllmut_module_mutant_list(module_path, line_number_list)
+            module_mutant_list = self._get_traditional_module_mutant_list(
+                module_path, line_number_list
+            )
+        elif self._mutation_strategy in [
+            MutationStrategy.GPT4oMini,
+            MutationStrategy.GPT4o,
+        ]:
+            module_mutant_list = self._get_pyllmut_module_mutant_list(
+                module_path, line_number_list
+            )
+        elif self._mutation_strategy in [
+            MutationStrategy.TraditionalWithGPT4oMini,
+            MutationStrategy.TraditionalWithGPT4o,
+        ]:
+            module_mutant_list = self._get_traditional_with_pyllmut_module_mutant_list(
+                module_path, line_number_list
+            )
         else:
-            raise Exception(f"Mutation strategy {self._mutation_strategy} is not supported.")
+            raise Exception(
+                f"Mutation strategy {self._mutation_strategy} is not supported."
+            )
 
         fl_print.normal(f"Number of generated mutants: {len(module_mutant_list)}")
 
@@ -120,8 +137,7 @@ class MutationManager:
 
     @staticmethod
     def _get_traditional_module_mutant_list(
-            module_path: str,
-            line_number_list: List[int]
+        module_path: str, line_number_list: List[int]
     ) -> List[Mutant]:
         """
         Generates mutants for a module using traditional mutation operators (i.e., Cosmic Ray).
@@ -137,14 +153,12 @@ class MutationManager:
         module_mutant_list = mutant_generator.get_mutants_for_module_and_lines(
             module_path=module_path,
             line_numbers=line_number_list,
-            operator_mutation_target_unique=True
+            operator_mutation_target_unique=True,
         )
         return module_mutant_list
 
     def _get_pyllmut_module_mutant_list(
-            self,
-            module_path: str,
-            line_number_list: List[int]
+        self, module_path: str, line_number_list: List[int]
     ) -> List[Mutant]:
         """
         Generates mutants for a module using PyLLMut.
@@ -163,7 +177,7 @@ class MutationManager:
             MutationStrategy.GPT4oMini: ModelType.GPT4oMini,
             MutationStrategy.TraditionalWithGPT4oMini: ModelType.GPT4oMini,
             MutationStrategy.GPT4o: ModelType.GPT4o,
-            MutationStrategy.TraditionalWithGPT4o: ModelType.GPT4o
+            MutationStrategy.TraditionalWithGPT4o: ModelType.GPT4o,
         }
 
         module_content = Path(module_path).read_text()
@@ -172,11 +186,13 @@ class MutationManager:
             line_number_list=line_number_list,
             mutants_per_line_count=constants.MUTANTS_PER_LINE_COUNT,
             timeout_seconds_per_line=constants.TIMEOUT_SECONDS_PER_LINE,
-            model_type=model_type_map[self._mutation_strategy]
+            model_type=model_type_map[self._mutation_strategy],
         )
         mutation_report = generator.generate()
 
-        timeout_line_list = [x.get_line_number() for x in mutation_report.get_timeout_info_list()]
+        timeout_line_list = [
+            x.get_line_number() for x in mutation_report.get_timeout_info_list()
+        ]
         if len(timeout_line_list) > 0:
             message_for_timeout = (
                 f"A timeout occurred for the following lines while using the {self._mutation_strategy.name} strategy. "
@@ -208,9 +224,7 @@ class MutationManager:
         return module_mutant_list
 
     def _get_traditional_with_pyllmut_module_mutant_list(
-            self,
-            module_path: str,
-            line_number_list: List[int]
+        self, module_path: str, line_number_list: List[int]
     ) -> List[Mutant]:
         """
         Generates mutants for a module using a combination of traditional mutation operators and gpt-4o-mini.
@@ -225,15 +239,28 @@ class MutationManager:
         assert self._mutation_strategy != MutationStrategy.Traditional
 
         fl_print.normal("Lines to generate mutants for:", line_number_list)
-        traditional_mutant_list: List[Mutant] = self._get_traditional_module_mutant_list(module_path, line_number_list)
-        covered_line_number_list = list(set([x.get_line_number() for x in traditional_mutant_list]))
+        traditional_mutant_list: List[Mutant] = (
+            self._get_traditional_module_mutant_list(module_path, line_number_list)
+        )
+        covered_line_number_list = list(
+            set([x.get_line_number() for x in traditional_mutant_list])
+        )
         covered_line_number_list.sort()
-        fl_print.normal("Lines covered by traditional mutation operators:", covered_line_number_list)
-        uncovered_line_number_list = list(set(line_number_list) - set(covered_line_number_list))
+        fl_print.normal(
+            "Lines covered by traditional mutation operators:", covered_line_number_list
+        )
+        uncovered_line_number_list = list(
+            set(line_number_list) - set(covered_line_number_list)
+        )
         uncovered_line_number_list.sort()
-        fl_print.normal("Lines uncovered by traditional mutation operators:", uncovered_line_number_list)
+        fl_print.normal(
+            "Lines uncovered by traditional mutation operators:",
+            uncovered_line_number_list,
+        )
 
-        llm_mutant_list = self._get_pyllmut_module_mutant_list(module_path, uncovered_line_number_list)
+        llm_mutant_list = self._get_pyllmut_module_mutant_list(
+            module_path, uncovered_line_number_list
+        )
 
         fl_print.normal("Number of traditional mutants", len(traditional_mutant_list))
         fl_print.normal("Number of LLM mutants", len(llm_mutant_list))
@@ -266,18 +293,20 @@ class MutationManager:
                 after_code_model=mutant_info_item.get_after_code_model(),
                 pre_code_refined=mutant_info_item.get_pre_code_refined(),
                 after_code_refined=mutant_info_item.get_after_code_refined(),
-                mutant_type=mutant_info_item.get_mutant_type().name
+                mutant_type=mutant_info_item.get_mutant_type().name,
             )
 
         # The following is for additional analysis and is not required for the fault localization session.
-        bad_response_info_list: List[ResponseInfo] = mutation_report.get_bad_response_info_list()
+        bad_response_info_list: List[ResponseInfo] = (
+            mutation_report.get_bad_response_info_list()
+        )
         for bad_response_info_item in bad_response_info_list:
             self._db_manager.insert_pyllmut_bad_response_info(
                 prompt_content=bad_response_info_item.get_prompt_content(),
                 line_number=bad_response_info_item.get_line_number(),
                 sent_token_count=bad_response_info_item.get_sent_token_count(),
                 response_content=bad_response_info_item.get_response_content(),
-                received_token_count=bad_response_info_item.get_received_token_count()
+                received_token_count=bad_response_info_item.get_received_token_count(),
             )
 
         # The following is for additional analysis and is not required for the fault localization session.

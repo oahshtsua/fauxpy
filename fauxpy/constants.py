@@ -16,14 +16,23 @@ FAUXPY_FUNCTION = (
 )
 
 # Fl session constants
-DB_FILE_NAME_FL_SESSION = "fauxpy.db"  # Database file name for FauxPy fault localization session
-CONFIG_FILE_NAME_FL_SESSION = "config.json"  # Configuration file name for FauxPy fault localization session
-TIME_FILE_NAME_FL_SESSION = "deltaTime.json"  # Time-related file for FauxPy fault localization session
-LOG_FILE_NAME_FL_SESSION = "logging.log"  # Log file name for FauxPy fault localization session
+DB_FILE_NAME_FL_SESSION = (
+    "fauxpy.db"  # Database file name for FauxPy fault localization session
+)
+CONFIG_FILE_NAME_FL_SESSION = (
+    "config.json"  # Configuration file name for FauxPy fault localization session
+)
+TIME_FILE_NAME_FL_SESSION = (
+    "deltaTime.json"  # Time-related file for FauxPy fault localization session
+)
+LOG_FILE_NAME_FL_SESSION = (
+    "logging.log"  # Log file name for FauxPy fault localization session
+)
 REPORT_DIRECTORY_NAME_PREFIX_FL_SESSION = "FauxPyReport"  # Prefix for the directory name including FauxPy fault localization reports
 
 # Fl results constants
 SCORES_CSV_HEADER = ["Entity", "Score"]
+
 
 class FileNames(object):
     CollectModeDirectoryName = "FauxPyCollectModeReport"
