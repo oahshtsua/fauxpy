@@ -37,6 +37,7 @@ class FlOptionManager:
         mutation_strategy_opt: str,
         fl_granularity_opt: str,
         top_n_opt: str,
+        budget_opt: str,
         failing_file_opt: str,
         failing_list_opt: str,
         fauxpy_verbose_opt: bool,
@@ -53,6 +54,7 @@ class FlOptionManager:
             mutation_strategy_opt (str): Mutation strategy for Mutation-Based Fault Localization (MBFL).
             fl_granularity_opt (str): Fault localization granularity option (e.g., statement).
             top_n_opt (str): Top N results to consider, or -1 for all results.
+            budget_opt (int): The number of mutants to generate.
             failing_file_opt (str): Path to the file containing targeted failing tests.
             failing_list_opt (str): Comma-separated list of targeted failing tests.
             fauxpy_verbose_opt (bool): Enables detailed output during execution when set to True.
@@ -69,6 +71,7 @@ class FlOptionManager:
         )
         self._fl_granularity = self._get_validate_fl_granularity(fl_granularity_opt)
         self._top_n = self._get_validate_top_n(top_n_opt)
+        self._budget = self._get_validate_budget(budget_opt)
         self._targeted_failing_test_list = (
             self._get_validate_targeted_failing_test_list(
                 failing_file_opt, failing_list_opt
@@ -200,6 +203,7 @@ class FlOptionManager:
                 self._mutation_strategy,
                 self._fl_granularity,
                 self._top_n,
+                self._budget,
                 self._targeted_failing_test_list,
                 self._file_or_dir_opt,
                 report_directory_path,
@@ -434,6 +438,34 @@ class FlOptionManager:
             raise pytest.UsageError(error_message)
 
         if int_value < -1 or int_value == 0:
+            raise pytest.UsageError(error_message)
+
+        return int_value
+
+    @staticmethod
+    def _get_validate_budget(budget_opt: str) -> int:
+        """
+        Validates the budget option.
+
+        Args:
+            budget_opt (str): The budget option, which should be greater than or equal to 0.
+
+        Returns:
+            int: The validated budget value.
+
+        Raises:
+            pytest.UsageError: If the option is not a valid integer or is less zero.
+        """
+        error_message = (
+            f"{budget_opt} is not a valid option. "
+            f"Correct options: an integer x, where x >= 0."
+        )
+        try:
+            int_value = int(budget_opt)
+        except:
+            raise pytest.UsageError(error_message)
+
+        if int_value < 0:
             raise pytest.UsageError(error_message)
 
         return int_value
