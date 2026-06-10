@@ -1,6 +1,7 @@
 import logging
+import random
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from pyllmut import (
     ModelType,
@@ -27,16 +28,23 @@ class MutationManager:
     utilizing various mutation strategies.
     """
 
-    def __init__(self, db_manager: MbflDbManager, mutation_strategy: MutationStrategy):
+    def __init__(
+        self,
+        db_manager: MbflDbManager,
+        mutation_strategy: MutationStrategy,
+        budget: Optional[int] = None,
+    ):
         """
         Initializes the MutationManager with specified database manager and mutation strategy.
 
         Args:
             db_manager (MbflDbManager): An instance for managing database operations.
             mutation_strategy (MutationStrategy): The strategy to be used for mutant generation.
+            budget (Optional[int]): Maximum number of mutants to generate. None means no limit.
         """
         self._db_manager = db_manager
         self._mutation_strategy = mutation_strategy
+        self._budget = budget
 
     @staticmethod
     def _set_mutant_ids(mutant_list):
@@ -55,6 +63,7 @@ class MutationManager:
         """
         Generates mutants for the given statements. Each statement contains
          information about the module and the line number the statement belongs to.
+         When budget is set, randomly selects that number of (module, line) pairs for mutation.
 
         Args:
             failing_line_number_list (List[str]): A list of statements to generate mutants for.
@@ -73,18 +82,68 @@ class MutationManager:
         failing_module_path_list = (
             self._db_manager.select_distinct_failing_module_paths()
         )
+
+        # Build a list of (module_path, line_number) pairs
+        module_line_pairs = []
         for module_path in failing_module_path_list:
             line_number_list = (
                 self._db_manager.select_failing_line_numbers_for_module_path(
                     module_path
                 )
             )
+            for line_number in line_number_list:
+                module_line_pairs.append((module_path, line_number))
 
+        # If budget is set, randomly select (module, line) pairs
+        if self._budget is not None and self._budget > 0:
+            total_pairs = len(module_line_pairs)
+            num_pairs_to_select = min(self._budget, total_pairs)
+            if total_pairs > 0:
+                # Randomly select budget number of (module, line) pairs
+                fl_print.normal("\nApplying budget constraint:")
+                fl_print.normal(f"  Budget limit: {self._budget}")
+                fl_print.normal(f"  Total available pairs: {total_pairs}")
+                fl_print.normal(f"  Pairs to randomly select: {num_pairs_to_select}")
+                selected_pairs = random.sample(module_line_pairs, num_pairs_to_select)
+                fl_print.normal(
+                    f"   Selected {len(selected_pairs)} out of {total_pairs} pairs"
+                )
+                module_line_pairs = selected_pairs
+        else:
+            fl_print.normal(
+                f"\nNo budget constraint. Using all {len(module_line_pairs)} (module, line) pairs."
+            )
+
+        # Group selected pairs by module for efficient processing
+        module_to_lines = {}
+        for module_path, line_number in module_line_pairs:
+            if module_path not in module_to_lines:
+                module_to_lines[module_path] = []
+            module_to_lines[module_path].append(line_number)
+
+        # Generate mutants for selected modules and lines
+        for module_path, line_number_list in module_to_lines.items():
             current_module_mutant_list = self._get_module_mutant_list(
                 module_path, line_number_list
             )
 
             mutant_list += current_module_mutant_list
+
+        # A single (module, line) pair can still expand into many mutants
+        # (one per applicable mutation operator), so also cap the total
+        # number of generated mutants to the budget.
+        if (
+            self._budget is not None
+            and self._budget > 0
+            and len(mutant_list) > self._budget
+        ):
+            fl_print.normal(
+                f"\nGenerated {len(mutant_list)} mutants, exceeding the budget of {self._budget}."
+            )
+            mutant_list = random.sample(mutant_list, self._budget)
+            fl_print.normal(
+                f"  Randomly selected {self._budget} mutants to respect the budget."
+            )
 
         self._set_mutant_ids(mutant_list)
 

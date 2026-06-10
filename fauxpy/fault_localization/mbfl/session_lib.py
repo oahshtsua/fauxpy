@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import coverage
 
@@ -34,6 +34,7 @@ class MbflSession(FlFamilySession):
         mutation_strategy: MutationStrategy,
         fl_granularity: FlGranularity,
         top_n: int,
+        budget: Optional[int],
         targeted_failing_test_list: List[TargetedFailingTst],
         file_or_dir,
         report_directory_path: Path,
@@ -44,6 +45,7 @@ class MbflSession(FlFamilySession):
         self._mutation_strategy = mutation_strategy
         self._fl_granularity = fl_granularity
         self._top_n = top_n
+        self._budget = budget
         self._targeted_failing_test_list = targeted_failing_test_list
         self._file_or_dir = file_or_dir
 
@@ -59,7 +61,9 @@ class MbflSession(FlFamilySession):
         self._mutant_score_manager = MutantScoreManager(self._db_manager)
         self._entity_score_manager = EntityScoreManager(self._db_manager)
         self._mutation_manager = MutationManager(
-            self._db_manager, self._mutation_strategy
+            self._db_manager,
+            self._mutation_strategy,
+            self._budget,
         )
         self._traceback_parser = TracebackParser(project_working_directory)
         self._path_util = PathUtil(project_working_directory)

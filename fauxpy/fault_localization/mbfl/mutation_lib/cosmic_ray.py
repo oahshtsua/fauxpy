@@ -59,7 +59,10 @@ class CosmicRayMutantGenerator:
         return original_code, mutated_code
 
     def _get_all_mutant_list(
-        self, module_path: str, operator_names: List[str]
+        self,
+        module_path: str,
+        operator_names: List[str],
+        line_numbers: Optional[List[int]] = None,
     ) -> List[Mutant]:
         # This function is a modified version of the following function:
         # https://github.com/sixty-north/cosmic-ray/blob/release/v8.3.5/src/cosmic_ray/commands/init.py#L15
@@ -88,6 +91,17 @@ class CosmicRayMutantGenerator:
                     continue
 
             for occurrence, (start_pos, end_pos) in enumerate(positions):
+                # Computing the mutated source (produce_mutation) re-walks the
+                # whole module and is by far the most expensive step here, so
+                # skip it for occurrences outside the requested lines instead
+                # of generating every mutant in the module and filtering
+                # afterwards.
+                if line_numbers is not None and (
+                    start_pos[0] not in line_numbers
+                    and end_pos[0] not in line_numbers
+                ):
+                    continue
+
                 original_code, mutated_code = self.produce_mutation(
                     module_path, operator, occurrence
                 )
@@ -133,14 +147,9 @@ class CosmicRayMutantGenerator:
         """
 
         operator_names = list(cosmic_ray.plugins.operator_names())
-        mutant_list = self._get_all_mutant_list(module_path, operator_names)
-
-        if line_numbers is not None:
-            mutant_list = [
-                x
-                for x in mutant_list
-                if x.start_pos[0] in line_numbers or x.end_pos[0] in line_numbers
-            ]
+        mutant_list = self._get_all_mutant_list(
+            module_path, operator_names, line_numbers
+        )
 
         if operator_mutation_target_unique:
             new_mutant_list = []

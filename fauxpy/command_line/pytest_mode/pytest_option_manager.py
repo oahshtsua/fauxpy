@@ -87,6 +87,11 @@ class PytestOptionManager:
             default=False,
             help="Show detailed output from FauxPy plugin.",
         )
+        group.addoption(
+            "--budget",
+            default=None,
+            help="Limit the number of mutants generated.",
+        )
 
     def get_fl_option_manager(self, pytest_config) -> FlOptionManager:
         """
@@ -104,6 +109,7 @@ class PytestOptionManager:
         mutation_strategy_opt = pytest_config.getoption("--mutation")
         fl_granularity_opt = pytest_config.getoption("--granularity")
         top_n_opt = pytest_config.getoption("--top-n")
+        budget_opt = pytest_config.getoption("--budget")
         failing_file_opt = pytest_config.getoption("--failing-file")
         failing_list_opt = pytest_config.getoption("--failing-list")
         fauxpy_verbose_opt = pytest_config.getoption("--fauxpy-verbose")
@@ -117,6 +123,7 @@ class PytestOptionManager:
             mutation_strategy_opt,
             fl_granularity_opt,
             top_n_opt,
+            budget_opt,
             failing_file_opt,
             failing_list_opt,
             fauxpy_verbose_opt,
