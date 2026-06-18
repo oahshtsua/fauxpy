@@ -20,6 +20,10 @@ from ...session_lib.fauxpy_printer import fl_print
 from .db_manager import MbflDbManager
 from .mutation_lib.cosmic_ray import CosmicRayMutantGenerator
 from .mutation_lib.mutant import Mutant
+from .mutation_lib.mutation_selector import (
+    RandomMutationSelector,
+    get_mutation_selector,
+)
 
 
 class MutationManager:
@@ -33,6 +37,7 @@ class MutationManager:
         db_manager: MbflDbManager,
         mutation_strategy: MutationStrategy,
         budget: Optional[int] = None,
+        mutation_selection_strategy: Optional[str] = None,
     ):
         """
         Initializes the MutationManager with specified database manager and mutation strategy.
@@ -41,10 +46,19 @@ class MutationManager:
             db_manager (MbflDbManager): An instance for managing database operations.
             mutation_strategy (MutationStrategy): The strategy to be used for mutant generation.
             budget (Optional[int]): Maximum number of mutants to generate. None means no limit.
+            mutation_selection_strategy (Optional[str]): Name of the registered MutationSelector
+                strategy used to pick which (module, line) pairs to mutate when budget is set.
+                Only consulted for the Traditional mutation strategy; other mutation strategies
+                always use random selection. Ignored (and may be left None) when budget is None.
         """
         self._db_manager = db_manager
         self._mutation_strategy = mutation_strategy
         self._budget = budget
+        self._mutation_selector = (
+            get_mutation_selector(mutation_selection_strategy)
+            if mutation_selection_strategy is not None
+            else None
+        )
 
     @staticmethod
     def _set_mutant_ids(mutant_list):
@@ -94,17 +108,24 @@ class MutationManager:
             for line_number in line_number_list:
                 module_line_pairs.append((module_path, line_number))
 
-        # If budget is set, randomly select (module, line) pairs
+        # If budget is set, select (module, line) pairs to mutate. The configurable
+        # selection strategy (--strategy) only applies to the Traditional mutation
+        # strategy; other mutation strategies always fall back to random selection.
         if self._budget is not None and self._budget > 0:
             total_pairs = len(module_line_pairs)
             num_pairs_to_select = min(self._budget, total_pairs)
             if total_pairs > 0:
-                # Randomly select budget number of (module, line) pairs
                 fl_print.normal("\nApplying budget constraint:")
                 fl_print.normal(f"  Budget limit: {self._budget}")
                 fl_print.normal(f"  Total available pairs: {total_pairs}")
-                fl_print.normal(f"  Pairs to randomly select: {num_pairs_to_select}")
-                selected_pairs = random.sample(module_line_pairs, num_pairs_to_select)
+                fl_print.normal(f"  Pairs to select: {num_pairs_to_select}")
+                selector = (
+                    self._mutation_selector
+                    if self._mutation_strategy == MutationStrategy.Traditional
+                    and self._mutation_selector is not None
+                    else RandomMutationSelector()
+                )
+                selected_pairs = selector.select(module_line_pairs, self._budget)
                 fl_print.normal(
                     f"   Selected {len(selected_pairs)} out of {total_pairs} pairs"
                 )

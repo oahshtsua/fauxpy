@@ -6,6 +6,9 @@ import pytest
 from fauxpy.fault_localization.collect_mbfl.session_lib import CollectMbflSession
 from fauxpy.fault_localization.collect_ps_info.session_lib import CollectPsInfoSession
 from fauxpy.fault_localization.collect_ps_run.session_lib import CollectPsRunSession
+from fauxpy.fault_localization.mbfl.mutation_lib.mutation_selector import (
+    get_available_mutation_selection_strategies,
+)
 from fauxpy.fault_localization.mbfl.session_lib import MbflSession
 from fauxpy.fault_localization.ps.session_lib import PsSession
 from fauxpy.fault_localization.sbfl.session_lib import SbflSession
@@ -38,6 +41,7 @@ class FlOptionManager:
         fl_granularity_opt: str,
         top_n_opt: str,
         budget_opt: str,
+        strategy_opt: Optional[str],
         failing_file_opt: str,
         failing_list_opt: str,
         fauxpy_verbose_opt: bool,
@@ -55,6 +59,9 @@ class FlOptionManager:
             fl_granularity_opt (str): Fault localization granularity option (e.g., statement).
             top_n_opt (str): Top N results to consider, or -1 for all results.
             budget_opt (int): The number of mutants to generate, or None if not specified.
+            strategy_opt (Optional[str]): Mutation location-selection strategy for MBFL.
+                Only meaningful when budget_opt is specified (only consulted for the
+                Traditional mutation strategy); ignored otherwise.
             failing_file_opt (str): Path to the file containing targeted failing tests.
             failing_list_opt (str): Comma-separated list of targeted failing tests.
             fauxpy_verbose_opt (bool): Enables detailed output during execution when set to True.
@@ -72,6 +79,9 @@ class FlOptionManager:
         self._fl_granularity = self._get_validate_fl_granularity(fl_granularity_opt)
         self._top_n = self._get_validate_top_n(top_n_opt)
         self._budget = self._get_validate_budget(budget_opt)
+        self._mutation_selection_strategy = (
+            self._get_validate_mutation_selection_strategy(strategy_opt, self._budget)
+        )
         self._targeted_failing_test_list = (
             self._get_validate_targeted_failing_test_list(
                 failing_file_opt, failing_list_opt
@@ -204,6 +214,7 @@ class FlOptionManager:
                 self._fl_granularity,
                 self._top_n,
                 self._budget,
+                self._mutation_selection_strategy,
                 self._targeted_failing_test_list,
                 self._file_or_dir_opt,
                 report_directory_path,
@@ -473,6 +484,45 @@ class FlOptionManager:
             raise pytest.UsageError(error_message)
 
         return int_value
+
+    @staticmethod
+    def _get_validate_mutation_selection_strategy(
+        strategy_opt: Optional[str], budget: Optional[int]
+    ) -> Optional[str]:
+        """
+        Validates the mutation location-selection strategy option against the
+        registry of available MutationSelector strategies.
+
+        The strategy is only meaningful when a budget is specified (it selects
+        which (module, line) pairs to mutate once the candidates exceed the
+        budget). If no budget is specified, the strategy option is ignored
+        entirely, regardless of what was passed.
+
+        Args:
+            strategy_opt (Optional[str]): The name of the requested strategy, or None.
+            budget (Optional[int]): The validated budget option, or None.
+
+        Returns:
+            Optional[str]: The validated strategy name, or None if no budget was specified.
+
+        Raises:
+            pytest.UsageError: If a budget is specified and the strategy is not registered.
+        """
+        if budget is None:
+            return None
+
+        effective_strategy_opt = strategy_opt if strategy_opt is not None else "random"
+
+        available_strategies = get_available_mutation_selection_strategies()
+
+        if effective_strategy_opt not in available_strategies:
+            error_message = (
+                f"{effective_strategy_opt} is not a valid option. "
+                f"Available strategies: {', '.join(available_strategies)}."
+            )
+            raise pytest.UsageError(error_message)
+
+        return effective_strategy_opt
 
     @staticmethod
     def _comma_string_list_to_python_list(comma_string_list: str) -> List[str]:

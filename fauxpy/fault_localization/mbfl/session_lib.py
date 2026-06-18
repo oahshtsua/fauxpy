@@ -35,6 +35,7 @@ class MbflSession(FlFamilySession):
         fl_granularity: FlGranularity,
         top_n: int,
         budget: Optional[int],
+        mutation_selection_strategy: Optional[str],
         targeted_failing_test_list: List[TargetedFailingTst],
         file_or_dir,
         report_directory_path: Path,
@@ -46,6 +47,7 @@ class MbflSession(FlFamilySession):
         self._fl_granularity = fl_granularity
         self._top_n = top_n
         self._budget = budget
+        self._mutation_selection_strategy = mutation_selection_strategy
         self._targeted_failing_test_list = targeted_failing_test_list
         self._file_or_dir = file_or_dir
 
@@ -64,6 +66,7 @@ class MbflSession(FlFamilySession):
             self._db_manager,
             self._mutation_strategy,
             self._budget,
+            self._mutation_selection_strategy,
         )
         self._traceback_parser = TracebackParser(project_working_directory)
         self._path_util = PathUtil(project_working_directory)

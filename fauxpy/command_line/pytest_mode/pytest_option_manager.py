@@ -1,6 +1,9 @@
 import os
 
 from fauxpy.command_line.pytest_mode.fl_option_manager import FlOptionManager
+from fauxpy.fault_localization.mbfl.mutation_lib.mutation_selector import (
+    get_available_mutation_selection_strategies,
+)
 from fauxpy.session_lib.fauxpy_session_type import FauxpySessionType
 from fauxpy.version import __version__
 
@@ -92,6 +95,16 @@ class PytestOptionManager:
             default=None,
             help="Limit the number of mutants generated.",
         )
+        group.addoption(
+            "--strategy",
+            default=None,
+            help="Specify the strategy used to select which (module, line) pairs to mutate "
+            "when --budget limits the candidates available to the Traditional (Cosmic Ray) "
+            "MBFL mutation strategy. Other mutation strategies always use random selection. "
+            "Only meaningful when --budget is also specified; ignored otherwise. "
+            f"Available strategies: {', '.join(get_available_mutation_selection_strategies())}. "
+            "Default is random (when --budget is specified).",
+        )
 
     def get_fl_option_manager(self, pytest_config) -> FlOptionManager:
         """
@@ -110,6 +123,7 @@ class PytestOptionManager:
         fl_granularity_opt = pytest_config.getoption("--granularity")
         top_n_opt = pytest_config.getoption("--top-n")
         budget_opt = pytest_config.getoption("--budget")
+        strategy_opt = pytest_config.getoption("--strategy")
         failing_file_opt = pytest_config.getoption("--failing-file")
         failing_list_opt = pytest_config.getoption("--failing-list")
         fauxpy_verbose_opt = pytest_config.getoption("--fauxpy-verbose")
@@ -124,6 +138,7 @@ class PytestOptionManager:
             fl_granularity_opt,
             top_n_opt,
             budget_opt,
+            strategy_opt,
             failing_file_opt,
             failing_list_opt,
             fauxpy_verbose_opt,
