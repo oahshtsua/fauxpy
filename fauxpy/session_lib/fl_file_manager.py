@@ -77,15 +77,17 @@ class FlFileManager:
         with file_path.open("w", encoding="utf-8") as file:
             json.dump(config_dict, file, indent=4)  # Pretty-print with indentation
 
-    def save_delta_time_to_file(self, delta_time):
+    def save_delta_time_to_file(self, delta_time, extra_metrics: dict | None = None):
         """
         Saves the fault localization session execution time (delta time) to a JSON file.
 
         Args:
             delta_time (float): Time taken by the fault localization session.
+            extra_metrics (dict | None): Additional session-specific metrics
+                (e.g., MBFL's mutant generation/validation timing) to merge in.
         """
         file_path = self._report_directory_path / constants.TIME_FILE_NAME_FL_SESSION
-        delta_time_dict = {"DeltaTime": delta_time}
+        delta_time_dict = {"DeltaTime": delta_time, **(extra_metrics or {})}
         with file_path.open("w", encoding="utf-8") as file:
             json.dump(delta_time_dict, file, indent=4)  # Pretty-print with indentation
 

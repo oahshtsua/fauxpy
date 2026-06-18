@@ -136,7 +136,10 @@ class FauxpyPytestModeHandler:
             print("--- Dynamic Analysis Complete ---")
 
             session_time = self._session_timer.end()
-            self._session_file_manager.save_delta_time_to_file(session_time)
+            extra_metrics = self._session_object.get_extra_metrics()
+            self._session_file_manager.save_delta_time_to_file(
+                session_time, extra_metrics
+            )
 
             for technique, score_list in score_entity_list.items():
                 self._session_file_manager.save_scores_to_file(technique, score_list)

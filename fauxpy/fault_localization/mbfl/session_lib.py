@@ -68,6 +68,10 @@ class MbflSession(FlFamilySession):
         self._traceback_parser = TracebackParser(project_working_directory)
         self._path_util = PathUtil(project_working_directory)
 
+        self._mutants_generated = 0
+        self._generation_time = 0.0
+        self._validation_time = 0.0
+
     def __str__(self):
         return "MBFL session"
 
@@ -199,11 +203,16 @@ class MbflSession(FlFamilySession):
         failing_line_numbers = (
             self._db_manager.select_distinct_line_numbers_covered_by_failing_tests()
         )
+
+        generation_timer = Timer()
+        generation_timer.start()
         mutant_list = (
             self._mutation_manager.get_all_mutants_for_failing_line_number_list(
                 failing_line_numbers
             )
         )
+        self._generation_time = generation_timer.end()
+        self._mutants_generated = len(mutant_list)
 
         # Storing mutants for possible further analysis (can be removed)
         for mutant in mutant_list:
@@ -223,6 +232,9 @@ class MbflSession(FlFamilySession):
         num_passed, num_failed = self._db_manager.select_number_of_tests()
         num_all_tests = num_passed + num_failed
         process_timeout = timeout.get_process_timeout(num_all_tests, timeout_limit)
+
+        validation_timer = Timer()
+        validation_timer.start()
         self._mbfl_run_manager.run_all_mutants_store_db(
             mutant_list,
             self._file_or_dir,
@@ -233,6 +245,8 @@ class MbflSession(FlFamilySession):
             num_all_tests,
             process_timeout,
         )
+        self._validation_time = validation_timer.end()
+
         self._mutant_score_manager.compute_mutant_scores_store_db()
         scored_entity_list = self._entity_score_manager.compute_entity_scores_store_db(
             self._top_n
@@ -242,3 +256,10 @@ class MbflSession(FlFamilySession):
         self._function_level_db_manager.end()
 
         return scored_entity_list
+
+    def get_extra_metrics(self) -> dict:
+        return {
+            "MutantsGenerated": self._mutants_generated,
+            "GenerationTime": self._generation_time,
+            "ValidationTime": self._validation_time,
+        }

@@ -1,5 +1,6 @@
 import glob
 import os
+import sys
 from typing import List, Tuple, Optional
 
 from fauxpy.fault_localization.collect_mbfl.api_file import CollectMbflApiFileManager
@@ -44,7 +45,7 @@ class CollectMbflApi:
     ):
         self._clean_project(project_path)
         command = (
-            ["python", "-m", "pytest"]
+            [sys.executable, "-m", "pytest"]
             + file_or_dir
             + [
                 "--src",

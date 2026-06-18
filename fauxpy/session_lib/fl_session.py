@@ -22,3 +22,11 @@ class FlSession(ABC):
         Runs after the execution of all tests.
         """
         pass
+
+    def get_extra_metrics(self) -> dict:
+        """
+        Returns additional session-specific metrics to be merged into the
+        delta time report (e.g., MBFL's mutant generation/validation timing).
+        Sessions that have nothing extra to report can rely on this default.
+        """
+        return {}
